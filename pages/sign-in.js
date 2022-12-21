@@ -1,9 +1,11 @@
 import {Button} from "antd";
 import firebaseApp from '../net/firebaseApp'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-
+import {useRouter} from "next/router";
 
 export default function SignIn() {
+    const router = useRouter();
+
     return (
         <div className=" flex justify-center items-center h-screen">
             <Button onClick={async () => {
@@ -14,10 +16,17 @@ export default function SignIn() {
                 // 추가 정보 요청
                 provider.addScope('profile')
                 provider.addScope('email')
-                // 인증 진행
+                // 팝업창을 통해 인증 진행
                 try {
                     const result = await signInWithPopup(auth, provider)
-                    console.log(result)
+                    const { email } = result.user;
+                    switch ( email ) {
+                        case "zsooon96@gmail.com":
+                            router.push('/')
+                            break;
+                        default:
+                            alert('관리자만 로그인이 가능합니다.')
+                    }
                 } catch(err) {
                     console.warn(err)
                 }
