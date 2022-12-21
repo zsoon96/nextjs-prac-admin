@@ -1,12 +1,15 @@
 import React from 'react';
 import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import {getAuth} from "firebase/auth";
+import firebaseApp from "../../net/firebaseApp";
+import {useRouter} from "next/router";
 
 const { Header, Content, Sider } = Layout;
-const items1 = ['1', '2', '3'].map((key) => ({
-    key,
-    label: `nav ${key}`,
-}));
+// const items1 = ['1', '2', '3'].map((key) => ({
+//     key,
+//     label: `nav ${key}`,
+// }));
 const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
     const key = String(index + 1);
     return {
@@ -28,6 +31,8 @@ export default function BaseLayout( {children} ) {
     //     token: { colorBgContainer },
     // } = theme.useToken();
 
+    const router = useRouter()
+
     return (
         <Layout style={{ minHeight:'100vh'}}>
             <Header className="header">
@@ -38,7 +43,17 @@ export default function BaseLayout( {children} ) {
                     margin: '16px 24px 16px 0',
                     background: 'rgba(255, 255, 255, 0.3)'
                 }} />
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} items={items1} />
+                {/*<Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} items={items1} />*/}
+                <Menu theme='dark' mode='horizontal' defaultSelectedKeys={['2']}>
+                    <Menu.Item key="1">nav 1</Menu.Item>
+                    <Menu.Item key="2">nav 2</Menu.Item>
+                    <Menu.Item key="3">nav 3</Menu.Item>
+                    <Menu.Item key="sign-out" onClick={()=>{
+                        const auth = getAuth(firebaseApp)
+                        auth.signOut()
+                        router.push('/sign-in')
+                    }}>로그아웃</Menu.Item>
+                </Menu>
             </Header>
             <Layout>
                 <Sider
