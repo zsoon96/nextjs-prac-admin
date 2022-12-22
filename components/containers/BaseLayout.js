@@ -5,6 +5,7 @@ import {getAuth} from "firebase/auth";
 import firebaseApp from "../../net/firebaseApp";
 import {useRouter} from "next/router";
 import SignIn from "../views/SignIn";
+import Loading from "../views/Loading";
 
 const { Header, Content, Sider } = Layout;
 // const items1 = ['1', '2', '3'].map((key) => ({
@@ -35,13 +36,19 @@ export default function BaseLayout( {children} ) {
     const router = useRouter()
     const auth = getAuth(firebaseApp)
     const [credential, setCredential] = useState(null)
+    const [loaded, setLoaded] = useState(false)
 
     useEffect(()=>{
         // onAuthStateChanged: 사용자 로그인 상태 체크하는 함수
         auth.onAuthStateChanged(credentials => {
             setCredential(credentials)
+            setLoaded(true)
         })
     },[])
+
+    if (!loaded) {
+        return <Loading />
+    }
 
     if (!credential) {
         return <SignIn />
