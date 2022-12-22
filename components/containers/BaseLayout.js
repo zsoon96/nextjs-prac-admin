@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import {getAuth} from "firebase/auth";
 import firebaseApp from "../../net/firebaseApp";
 import {useRouter} from "next/router";
+import SignIn from "../views/SignIn";
 
 const { Header, Content, Sider } = Layout;
 // const items1 = ['1', '2', '3'].map((key) => ({
@@ -32,6 +33,19 @@ export default function BaseLayout( {children} ) {
     // } = theme.useToken();
 
     const router = useRouter()
+    const auth = getAuth(firebaseApp)
+    const [credential, setCredential] = useState(null)
+
+    useEffect(()=>{
+        // onAuthStateChanged: 사용자 로그인 상태 체크하는 함수
+        auth.onAuthStateChanged(credentials => {
+            setCredential(credentials)
+        })
+    },[])
+
+    if (!credential) {
+        return <SignIn />
+    }
 
     return (
         <Layout style={{ minHeight:'100vh'}}>
@@ -49,7 +63,6 @@ export default function BaseLayout( {children} ) {
                     <Menu.Item key="2">nav 2</Menu.Item>
                     <Menu.Item key="3">nav 3</Menu.Item>
                     <Menu.Item key="sign-out" onClick={()=>{
-                        const auth = getAuth(firebaseApp)
                         auth.signOut()
                         router.push('/sign-in')
                     }}>로그아웃</Menu.Item>
