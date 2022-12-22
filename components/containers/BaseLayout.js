@@ -41,7 +41,19 @@ export default function BaseLayout( {children} ) {
     useEffect(()=>{
         // onAuthStateChanged: 사용자 로그인 상태 체크하는 함수
         auth.onAuthStateChanged(credentials => {
-            setCredential(credentials)
+            // 허용된 사용자만 로그인 유지
+            if (credentials) {
+                switch ( credentials?.email ) {
+                    case "zsooon96@gmail.com":
+                        setCredential(credentials)
+                        router.push('/')
+                        break;
+                    default:
+                        alert('관리자만 로그인이 가능합니다.')
+                }
+            } else {
+                setCredential(null)
+            }
             setLoaded(true)
         })
     },[])
@@ -71,7 +83,6 @@ export default function BaseLayout( {children} ) {
                     <Menu.Item key="3">nav 3</Menu.Item>
                     <Menu.Item key="sign-out" onClick={()=>{
                         auth.signOut()
-                        router.push('/sign-in')
                     }}>로그아웃</Menu.Item>
                 </Menu>
             </Header>
