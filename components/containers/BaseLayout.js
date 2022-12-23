@@ -46,7 +46,7 @@ export default function BaseLayout( {children} ) {
                 switch ( credentials?.email ) {
                     case "zsooon96@gmail.com":
                         setCredential(credentials)
-                        router.push('/')
+                        // router.push('/')
                         break;
                     default:
                         alert('관리자만 로그인이 가능합니다.')
