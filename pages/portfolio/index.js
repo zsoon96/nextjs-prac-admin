@@ -21,7 +21,6 @@ export default function PortfolioList () {
         <BaseLayout>
             <ul>
                 {portfolios.map(portfolio => {
-                    console.log(portfolio)
                     return <li key={portfolio.id}>{portfolio.title}</li>
                 })}
             </ul>
