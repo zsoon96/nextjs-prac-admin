@@ -1,30 +1,36 @@
 import BaseLayout from "../../components/containers/BaseLayout";
 import {Button, Form, Input} from 'antd';
 import firebaseApp from '../../net/firebaseApp';
-import { getFirestore, collection, addDoc } from 'firebase/firestore/lite'
+import {getFirestore, collection, addDoc} from 'firebase/firestore/lite'
 import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage';
 import {useRouter} from "next/router";
 import uid from 'tiny-uid';
 import {DateTime} from "luxon";
+import {useState} from "react";
 
 export default function PortfolioForm() {
     const router = useRouter()
     const [form] = Form.useForm()
+    const [thumbnail, setThumbnail] = useState('')
 
     return (
         <BaseLayout>
-            <Form form={form} layout="vertical" onFinish={ (values) => {
+            <Form form={form} layout="vertical" onFinish={(values) => {
                 // firebase db 객체 생성
                 const firebaseDb = getFirestore(firebaseApp)
                 // firebase db의 collection 객체 생성
                 const portfolios = collection(firebaseDb, 'portfolios')
+                console.log(values)
                 // firebase db에 데이터 넣기
                 addDoc(portfolios,
-                    {...values,
+                    {
+                        ...values,
+                        thumbnail,
                         created_at: new Date(),
-                        updated_at: new Date()}
-                )
-                    .then(res => router.push('/portfolio'))
+                        updated_at: new Date()
+            })
+            .
+                then(() => router.push('/portfolio'))
                     .catch(console.warn)
             }}>
                 <Form.Item label='제목' required name="title">
@@ -37,6 +43,7 @@ export default function PortfolioForm() {
 
                 <Form.Item label='이미지' required name="image">
                     <input type="file" onChange={async (e) => {
+                        console.log('파일')
                         if (e.target.files.length === 0) return
                         // firebase storage 객체 생성
                         const storage = getStorage(firebaseApp);
@@ -50,8 +57,12 @@ export default function PortfolioForm() {
                         await uploadBytes(fileRef, file)
                         // 다운로드 시 파일 url
                         const url = await getDownloadURL(fileRef)
+                        setThumbnail(url)
                         console.log(url)
                     }}/>
+                    {thumbnail && (
+                        <img src={thumbnail} style={{maxWidth: 200, maxHeight: 200}} alt='썸네일 이미지'/>
+                    )}
                 </Form.Item>
 
                 <Form.Item>
