@@ -19,10 +19,10 @@ export default function PortfolioForm() {
                 // firebase db 객체 생성
                 const firebaseDb = getFirestore(firebaseApp)
                 // firebase db의 collection 객체 생성
-                const portfolios = collection(firebaseDb, 'portfolios')
+                const portfolioList = collection(firebaseDb, 'portfolioList')
                 console.log(values)
                 // firebase db에 데이터 넣기
-                addDoc(portfolios,
+                addDoc(portfolioList,
                     {
                         ...values,
                         thumbnail,
@@ -33,17 +33,9 @@ export default function PortfolioForm() {
                 then(() => router.push('/portfolio'))
                     .catch(console.warn)
             }}>
-                <Form.Item label='제목' required name="title">
-                    <Input/>
-                </Form.Item>
-
-                <Form.Item label='내용' required name="content">
-                    <Input.TextArea/>
-                </Form.Item>
-
-                <Form.Item label='이미지' required name="image">
+                <Form.Item label='이미지' required>
+                    {/* 파일 업로드 창이 안뜰경우에는 크롬 브라우저 업데이트 여부 확인 */}
                     <input type="file" onChange={async (e) => {
-                        console.log('파일')
                         if (e.target.files.length === 0) return
                         // firebase storage 객체 생성
                         const storage = getStorage(firebaseApp);
@@ -57,12 +49,21 @@ export default function PortfolioForm() {
                         await uploadBytes(fileRef, file)
                         // 다운로드 시 파일 url
                         const url = await getDownloadURL(fileRef)
+                        // 비동기 처리로 인한 null 주의
                         setThumbnail(url)
                         console.log(url)
                     }}/>
                     {thumbnail && (
                         <img src={thumbnail} style={{maxWidth: 200, maxHeight: 200}} alt='썸네일 이미지'/>
                     )}
+                </Form.Item>
+
+                <Form.Item label='제목' required name="title">
+                    <Input/>
+                </Form.Item>
+
+                <Form.Item label='내용' required name="content">
+                    <Input.TextArea/>
                 </Form.Item>
 
                 <Form.Item>

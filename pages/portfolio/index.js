@@ -10,6 +10,8 @@ function Items({portfolio}) {
     return (
         <li className='flex flex-row items-center py-2 border-b'>
             <div className='w-16'>
+                {/* Firebase Storage 접근 권한 이슈 시, storage rules 설정 변경 */}
+                {/* 참고: https://ohmh.tistory.com/17 */}
                 <img src={portfolio.thumbnail} className='max-w-16 max-h-16' alt='썸네일 이미지'/>
             </div>
             <div className='flex-1 mx-2'>
@@ -17,7 +19,7 @@ function Items({portfolio}) {
             </div>
             <div>
                 {/*{JSON.stringify(portfolio.created_at.seconds)}*/}
-                {/*{DateTime.fromSeconds(portfolio.created_at.seconds).toFormat('yyyy-LL-dd')}*/}
+                {DateTime.fromSeconds(portfolio.created_at.seconds).toFormat('yyyy-LL-dd')}
             </div>
         </li>
     )
@@ -28,10 +30,14 @@ export default function PortfolioList() {
 
     useEffect(() => {
         const firebaseDb = getFirestore(firebaseApp)
-        const portfolios = collection(firebaseDb, 'portfolios')//.orderBy('created_at', 'desc')
-        getDocs(portfolios).then((getDataSnapshot) => {
+        const portfolioList = collection(firebaseDb, 'portfolioList')//.orderBy('created_at', 'desc')
+        getDocs(portfolioList).then((getDataSnapshot) => {
             // doc.data()를 통해 doc 데이터를 json으로 변환
-            setPortfolios(getDataSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()})));
+            setPortfolios(
+                getDataSnapshot.docs
+                    .map(doc => ({id: doc.id, ...doc.data()}))
+                    // 생성일로 비교해서 정렬
+                    .sort((x, y) => x.created_at.seconds < y.created_at.seconds ? 1 : -1));
         })
     }, [])
 
@@ -39,10 +45,10 @@ export default function PortfolioList() {
         <BaseLayout>
             <ul>
                 {portfolios.map(portfolio => {
-                    return <li key={portfolio.id}><Items portfolio={portfolio}/></li>
+                    return <Items key={portfolio.id} portfolio={portfolio}/>
                 })}
             </ul>
-            <div className="flex flex-row justify-end">
+            <div className="flex flex-row justify-end pt-4">
                 <Link href="/portfolio/create">
                     <Button>추가</Button>
                 </Link>
