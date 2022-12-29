@@ -2,37 +2,50 @@ import {useRouter} from "next/router";
 import {Button, Form, Input} from "antd";
 import {useState} from "react";
 import BaseLayout from "../containers/BaseLayout";
-import {addDoc, collection, getFirestore} from "firebase/firestore/lite";
+import {addDoc, collection, getFirestore, updateDoc, doc} from "firebase/firestore/lite";
 import firebaseApp from "../../net/firebaseApp";
 import {getDownloadURL, getStorage, ref, uploadBytes} from "firebase/storage";
 import {DateTime} from "luxon";
 import uid from "tiny-uid";
 
 // portfolio 작성 폼 컴포넌트
-export default function PortfolioForm() {
+export default function PortfolioForm({id, portfolio}) {
     const router = useRouter()
     const [form] = Form.useForm()
-    const [thumbnail, setThumbnail] = useState('')
+    const [thumbnail, setThumbnail] = useState(portfolio?.thumbnail)
 
     return (
         <BaseLayout>
-            <Form form={form} layout="vertical" onFinish={(values) => {
+            <Form form={form} layout="vertical" initialValues={{ title: portfolio?.title, content: portfolio?.content }} onFinish={(values) => {
                 // firebase db 객체 생성
                 const firebaseDb = getFirestore(firebaseApp)
                 // firebase db의 collection 객체 생성
                 const portfolioList = collection(firebaseDb, 'portfolioList')
                 console.log(values)
-                // firebase db에 데이터 넣기
-                addDoc(portfolioList,
-                    {
+
+                // id 여부에 따른 수정/등록 분기 처리
+                if (!id) {
+                    // firebase db에 데이터 넣기
+                    addDoc(portfolioList,
+                        {
+                            ...values,
+                            thumbnail,
+                            created_at: new Date(),
+                            updated_at: new Date()
+                        })
+                        .then(() => router.push('/portfolio'))
+                        .catch(console.warn)
+                } else {
+                    const docRef = doc( firebaseDb, 'portfolioList', id)
+                    updateDoc( docRef, {
                         ...values,
                         thumbnail,
-                        created_at: new Date(),
-                        updated_at: new Date()
+                        updated_at: new Date(),
                     })
-                    .
-                    then(() => router.push('/portfolio'))
-                    .catch(console.warn)
+                        .then(() => router.push('/portfolio'))
+                        .catch(console.warn)
+                }
+
             }}>
                 <Form.Item label='이미지' required>
                     {/* 파일 업로드 창이 안뜰경우에는 크롬 브라우저 업데이트 여부 확인 */}

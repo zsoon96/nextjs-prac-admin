@@ -15,7 +15,9 @@ function Items({portfolio}) {
                 <img src={portfolio.thumbnail} className='max-w-16 max-h-16' alt='썸네일 이미지'/>
             </div>
             <div className='flex-1 mx-2'>
-                {portfolio.title}
+                <Link href={`/portfolio/${portfolio.id}`}>
+                    {portfolio.title}
+                </Link>
             </div>
             <div>
                 {/*{JSON.stringify(portfolio.created_at.seconds)}*/}
