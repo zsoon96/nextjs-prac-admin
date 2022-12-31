@@ -7,6 +7,12 @@ import firebaseApp from "../../net/firebaseApp";
 import {getDownloadURL, getStorage, ref, uploadBytes} from "firebase/storage";
 import {DateTime} from "luxon";
 import uid from "tiny-uid";
+// import ReactQuill from "react-quill";
+import dynamic from 'next/dynamic';
+
+// 서버사이드가 HTML을 렌더링하는 시점에서 입력에 대한 에디터가 만들어질 필요가 없기 때문에 dynamic을 통해 import
+// 서버사이드에 대응하기 위해 동적으로 import + ssr 환경에서 동작하지 않도록 설정 (모든 editor 라이브러리 사용 시 동일)
+const ReactQuill = dynamic(() => import ('react-quill'), { ssr : false})
 
 // portfolio 작성 폼 컴포넌트
 export default function PortfolioForm({id, portfolio}) {
@@ -86,6 +92,12 @@ export default function PortfolioForm({id, portfolio}) {
 
                 <Form.Item label='내용' required name="content">
                     <Input.TextArea/>
+                </Form.Item>
+
+                <Form.Item>
+                    {/* editor 서버사이드에 대한 별도의 처리가 필요 */}
+                    {/* react-quill import 시점에 document 참조 발생 > 서버사이드 렌더링 시 document is undefined 에러 발생 */}
+                    <ReactQuill/>
                 </Form.Item>
 
                 <div className='flex flex-row justify-between'>
